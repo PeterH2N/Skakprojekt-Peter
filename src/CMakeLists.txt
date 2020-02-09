@@ -1,4 +1,4 @@
-add_executable(imgui-sfml-example
+add_executable(imgui-sfml-example WIN32
   main.cpp
 
 )

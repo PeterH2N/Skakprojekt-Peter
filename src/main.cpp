@@ -471,6 +471,7 @@ int pauseMenu(){
     while(chessBoard.waitEvent(mouseClick)){
         if (mouseClick.type == sf::Event::Closed){
             chessBoard.close();
+            exit (EXIT_SUCCESS);
         }
         if (mouseClick.type == sf::Event::KeyPressed)
         {
@@ -502,6 +503,7 @@ int pauseMenu(){
     }
     else if (mouseX > (width/2)-(buttonWidth/2) && mouseX < (width/2)-(buttonWidth/2)+buttonWidth && mouseY > height/2-windowHeight/2+buttonHeight/2+buttonHeight*3+buttonHeight/3*3 && mouseY < height/2-windowHeight/2+buttonHeight/2+buttonHeight*3+buttonHeight/3*3+buttonHeight){
         chessBoard.close();
+        exit (EXIT_SUCCESS);
     }
     else {
         return 2;
@@ -522,6 +524,7 @@ void gameModes(){
     while(chessBoard.waitEvent(mouseClick)){
         if (mouseClick.type == sf::Event::Closed){
             chessBoard.close();
+            exit (EXIT_SUCCESS);
         }
         if (mouseClick.type == sf::Event::MouseButtonPressed){
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)){
@@ -566,9 +569,10 @@ void startMenu(){
 
 
     while(chessBoard.waitEvent(mouseClick)){
-        if (mouseClick.type == sf::Event::Closed)
+        if (mouseClick.type == sf::Event::Closed){
             chessBoard.close();
-
+            exit (EXIT_SUCCESS);
+        }
         if (mouseClick.type == sf::Event::MouseButtonPressed){
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)){
             sf::Vector2i localPosition = sf::Mouse::getPosition(chessBoard);
@@ -589,6 +593,7 @@ void startMenu(){
     }
     else if (mouseX > width/2-buttonWidth/2 && mouseX < width/2-buttonWidth/2+buttonWidth && mouseY > height/7-buttonHeight/2+buttonHeight*5 && mouseY < height/7-buttonHeight/2+buttonHeight*6){
         chessBoard.close();
+        exit (EXIT_SUCCESS);
     }
 
     else{
@@ -1108,8 +1113,10 @@ chessBoard.display();
                 return pauseMenu();
             }
         }
-        if (mouseClick.type == sf::Event::Closed)
+        if (mouseClick.type == sf::Event::Closed){
             chessBoard.close();
+            exit (EXIT_SUCCESS);
+        }
     }
     for (unsigned int i = 0; i < 8; i++){
         for (unsigned int j = 0; j < 8; j++){
@@ -1151,8 +1158,10 @@ chessBoard.display();
                 return pauseMenu();
             }
         }
-        if (mouseClick.type == sf::Event::Closed)
+        if (mouseClick.type == sf::Event::Closed){
             chessBoard.close();
+            exit (EXIT_SUCCESS);
+        }
     }
     bool validClick = false;
     Move move;
@@ -1365,7 +1374,7 @@ startOfPlayervsCom:
 
 
     if (checkMate(board,-currentPlayer) or staleMate(board, -currentPlayer)){
-        chessBoard.close();
+        return pauseMenu();
     }
     changeCurrentPlayer();
     return 0;
@@ -1379,6 +1388,7 @@ void comvscom(){
 
     if (checkMate(board,-currentPlayer) or staleMate(board, -currentPlayer)){
         chessBoard.close();
+        exit (EXIT_SUCCESS);
     }
 
     changeCurrentPlayer();
@@ -1399,7 +1409,7 @@ int playervsplayer(){
 
 
     if (checkMate(board,-currentPlayer) or staleMate(board, -currentPlayer)){
-        chessBoard.close();
+        return pauseMenu();
     }
     changeCurrentPlayer();
 return 0;
@@ -1443,9 +1453,10 @@ int main(){
                 sf::Event event;
                 while (chessBoard.pollEvent(event)){
 
-                    if (event.type == sf::Event::Closed)
+                    if (event.type == sf::Event::Closed){
                         chessBoard.close();
-
+                        exit (EXIT_SUCCESS);
+                        }
 
                 }
 
@@ -1466,9 +1477,10 @@ int main(){
                 sf::Event event;
                 while (chessBoard.pollEvent(event)){
 
-                    if (event.type == sf::Event::Closed)
+                    if (event.type == sf::Event::Closed){
                         chessBoard.close();
-
+                        exit (EXIT_SUCCESS);
+                    }
 
                 }
         startOfPC:
@@ -1489,9 +1501,10 @@ int main(){
                 sf::Event event;
                 while (chessBoard.pollEvent(event)){
 
-                    if (event.type == sf::Event::Closed)
+                    if (event.type == sf::Event::Closed){
                         chessBoard.close();
-
+                        exit (EXIT_SUCCESS);
+                    }
                 }
         comvscom();
 }
