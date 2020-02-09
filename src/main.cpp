@@ -9,7 +9,7 @@
 
 
 using namespace std;
-
+//setting up the redering window for the GUI
 static sf::ContextSettings settings;
 static unsigned int screenWidth = 1000;
 static unsigned int screenHeight = 1000;
@@ -21,21 +21,26 @@ static sf::RenderWindow chessBoard(sf::VideoMode(screenWidth,screenHeight), "Ska
 
 static sf::Vector2u size = chessBoard.getSize();
 
+//variables for statistics on the chess engine
 static int posCounter = 0;
 static int fullPosCounter = 0;
 static double fullDuration = 0;
 
-//in following order: King, Queen, Rook, Bishop, Knight, Pawn
+
 static char abc[8] = {'A','B','C','D','E','F','G','H'};
+
+//in following order: King, Queen, Rook, Bishop, Knight, Pawn
 static std::string chessPieces[13] = {"k","q","r","b","n","p","l","w","t","v","m","o"," "};
 
-
+//used for navigating through menus
 static int navigation;
 static int gameMode;
 
+//used for opening moves
 static unsigned int turns = 0;
 //static unsigned int opening;
 
+//returns the minimum of 2 values - used for trying to fix alpha beta pruning
 int min(int value1, int value2){
     if (value1 <= value2){
         return value1;
@@ -44,6 +49,7 @@ int min(int value1, int value2){
         return value2;
     }
 }
+//returns the maximum of 2 values - used for trying to fix alpha beta pruning
 int max(int value1, int value2){
     if(value1 >= value2){
         return value1;
@@ -52,6 +58,7 @@ int max(int value1, int value2){
         return value2;
     }
 }
+//returns the absolute value
 int abs(int value){
     if (value < 0){
         return -value;
@@ -60,6 +67,8 @@ int abs(int value){
         return value;
     }
 }
+
+//sizes for the GUI
 static unsigned int width = min(screenWidth,screenHeight);
 static unsigned int height = min(screenWidth,screenHeight);
 static unsigned int screenSize = min(screenWidth,screenHeight);
@@ -96,6 +105,7 @@ public:
         board[M.y2][M.x2] = B1.board[M.y2][M.x2];
     }
 
+    //evaluates the board
     int getValue(){
         int boardValue = 0;
         for (int i = 0; i < 8; i++){
@@ -106,6 +116,7 @@ public:
         return boardValue;
     }
 
+    //returns all the pieces of the color given
     vector<Piece> getPieces(int color){
         vector<Piece> pieces;
         Piece valid;
@@ -121,7 +132,7 @@ public:
 
 };
 
-/*brikkernes værdier
+/*Piece values
 int whitePawn = 1;
 int whiteKnight = 2;
 int whiteBishop = 3;
@@ -136,23 +147,26 @@ int blackQueen = -9;
 int blackKing = -999;
 */
 
-static Board board;                                           //boardet, et array med 8*8 felter
-static Move lastMove;
-static Move empty = {0,0,0,0};
-
-static int currentPlayer = 1;
-
-static sf::Vertex arrow[2];
+static Board board;                                           //the board, an 8*8 array of ints
+static Move lastMove;                                         //used for showing the last move done
+static Move empty = {0,0,0,0};                                //used to reset a specific move
+static int currentPlayer = 1;                                 //the current player, starting as white
 
 
+static sf::Vertex arrow[2];                                   //line to show last move
 
+
+//unused opening moves
+/*
 static vector<Move> nimzoIndian = {{6,0,5,2},{4,1,4,2},{5,0,1,4}};
 static vector<Move> frenchDefense = {{4,1,4,2},{3,1,3,3},{2,1,2,3},{1,0,2,2}};
 
 
 static vector<vector<Move>> openingMoves = {nimzoIndian,frenchDefense};
+*/
 
 
+//converts a pawn to a queen if at opposite row
 void pawnToQueen(Board &B,int color){
     if (color == -1){
         for (int i = 0; i < 8; i++){
@@ -174,6 +188,7 @@ void pawnToQueen(Board &B,int color){
 
 }
 
+//returns the middle position of a square on the board, used for the indicators
 Piece getMiddlePos(unsigned int size, unsigned int x, unsigned int y){
     Piece P;
     P.x = width/20+width/10-size+width/10*x;
@@ -181,6 +196,7 @@ Piece getMiddlePos(unsigned int size, unsigned int x, unsigned int y){
     return P;
 }
 
+//returns the middle position of a square for a chess piece
 int getPieceX(int x){
     return width/20+width/10+width/10*x;
 }
@@ -189,6 +205,7 @@ int getPieceY(int y){
     return width/20+width/10+width/10*y;
 }
 
+//returns the correct character to print when a chesspiece value is passed to it
 string getChessPiece(int value){
     switch (value){
     case -999:
@@ -220,7 +237,8 @@ string getChessPiece(int value){
     }
 }
 
-void drawChessBoard(Board B){          //draws chessboard with all pieces
+//draws chessboard with all pieces
+void drawChessBoard(Board B){
     font.loadFromFile("../arial.ttf");
     chessPieceFont.loadFromFile("../CASEFONT.ttf");
     sf::Text boardText;
@@ -314,6 +332,8 @@ void drawChessBoard(Board B){          //draws chessboard with all pieces
     //chessBoard.display();
 }
 
+
+//draws the start menu
 void drawStartMenu(){
     font.loadFromFile("../arial.ttf");
     string menu[3] = {"Start Game","Options","Quit Game"};
@@ -362,6 +382,7 @@ void drawStartMenu(){
 
 }
 
+//draws the gamemode picker
 void drawGameModes(){
     drawStartMenu();
     font.loadFromFile("../arial.ttf");
@@ -398,6 +419,7 @@ void drawGameModes(){
 
 }
 
+//draws the pause menu
 void drawPauseMenu(){
     drawChessBoard(board);
     font.loadFromFile("../arial.ttf");
@@ -434,6 +456,7 @@ void drawPauseMenu(){
 
 }
 
+//makes the pause menu functional
 int pauseMenu(){
     startOfPauseMenu:
         drawPauseMenu();
@@ -485,6 +508,7 @@ int pauseMenu(){
     }
 }
 
+//makes the gamemode picker functional
 void gameModes(){
     drawGameModes();
 
@@ -528,6 +552,7 @@ void gameModes(){
 
 }
 
+//makes the startmenu functional
 void startMenu(){
 
     drawStartMenu();
@@ -571,6 +596,7 @@ void startMenu(){
     }
 }
 
+//draws an arrow that indicates the last move
 void showLastMove(){
 
 
@@ -586,9 +612,11 @@ void showLastMove(){
 
 }
 
+//changes the currentplayer from 1 to -1, or the other way around
 void changeCurrentPlayer(){
     currentPlayer = -currentPlayer;
 }
+
 
 vector<Move> validPawnMoves(Board B, Piece P, int color){
     vector<Move> valid;
@@ -942,6 +970,7 @@ vector<Move> validKingMoves(Board B, Piece P){
     return valid;
 }
 
+//returns valid moves for a position, before check is calculated
 vector<Move> validMovesBefore(Board B,Piece P,int color){
     switch (B.board[P.y][P.x]*color) {
 
@@ -965,6 +994,7 @@ vector<Move> validMovesBefore(Board B,Piece P,int color){
     }
 }
 
+//returns all possible moves for a color, before check
 vector<Move> allPossibleMovesBefore(Board B,int color){
     vector<Move> allpossiblemoves;
     for (Piece P : B.getPieces(color)){
@@ -975,6 +1005,7 @@ vector<Move> allPossibleMovesBefore(Board B,int color){
     return allpossiblemoves;
 }
 
+//returns whether the your king is threatened or not
 bool kingIsAttakced(Board B,int color){
     Piece King;
     //locate opponents King
@@ -996,6 +1027,7 @@ bool kingIsAttakced(Board B,int color){
     return false;
 }
 
+//returns whether a specific move puts you in check or not
 bool check(Board B, Move M, int color){
 Board copyBoard = B;
     copyBoard.move(M);
@@ -1003,6 +1035,7 @@ Board copyBoard = B;
 
 }
 
+//returns valid moves for a position, after all moves that put you in check are excluded
 vector<Move> validMoves(Board B, Piece P, int color){
     vector<Move> valid;
 for (Move v : validMovesBefore(B,P,color)){
@@ -1014,6 +1047,7 @@ return valid;
 
 }
 
+//returns all possible moves, after check
 vector<Move> allPossibleMoves(Board B,int color){
     vector<Move> allpossiblemoves;
     for (Piece P : B.getPieces(color)){
@@ -1024,6 +1058,7 @@ vector<Move> allPossibleMoves(Board B,int color){
     return allpossiblemoves;
 }
 
+//checks whether you are in checkmate or not
 bool checkMate(Board B, int color){
     if (allPossibleMoves(B,color).size() == 0 && kingIsAttakced(B,-color)){
         return true;
@@ -1031,6 +1066,7 @@ bool checkMate(Board B, int color){
     return false;
 }
 
+//checks whether you are in stalemate or not
 bool staleMate(Board B, int color){
     if (allPossibleMoves(B,color).size() == 0 && !kingIsAttakced(B,-color)){
         return true;
@@ -1038,18 +1074,7 @@ bool staleMate(Board B, int color){
     return false;
 }
 
-bool validMove(Board B, Move M, int color){
-    Piece P;
-    P.x = M.x1;
-    P.y = M.y1;
-    for (Move move : validMoves(B,P,color)){
-        if (move.x2 == M.x2 && move.y2 == M.y2){
-            return true;
-        }
-    }
-    return false;
-}
-
+//messy function that handles the player move, as well as the grapichs for it
 int playerMove(int color) {
 
     Piece P;
@@ -1156,13 +1181,14 @@ else{
 return -1;
 }
 
-
+//returns the largest of the two, used for sorting
 bool sortinrev(const pair<Move,int> &a,
                const pair<Move,int> &b)
 {
        return (a.second > b.second);
 }
 
+//sorts a vector of moves, by the value of the board afther making the move
 vector<Move> sortedMoves(Board &B,int color){
     vector<Move> moves;
     vector< pair <Move,int>> sorted;
@@ -1195,8 +1221,7 @@ vector<Move> sortedMoves(Board &B,int color){
     return moves;
 }
 
-
-
+//finds the best move value
 int negaMax(Board &B, int depth, int color, int alpha, int beta){
 
     if(depth == 0){
@@ -1223,6 +1248,7 @@ int negaMax(Board &B, int depth, int color, int alpha, int beta){
     return value;
 }
 
+//jumps in 1 layer in the negamax to figure out which move is the best
 int comMove(int color){
 
     clock_t start = clock();
@@ -1289,6 +1315,7 @@ chessBoard.display();
 //}
 }
 
+//initializes the board with the starting position, and resets some variables
 void startGame(){
     fullDuration = 0;
     fullPosCounter = 0;
@@ -1310,6 +1337,7 @@ void startGame(){
     chessBoard.display();
     }
 
+//the player vs computer gamemode
 int playervscom(){
 startOfPlayervsCom:
 
@@ -1343,6 +1371,7 @@ startOfPlayervsCom:
     return 0;
 }
 
+//the computer vs computer gamemode
 void comvscom(){
 
 
@@ -1356,6 +1385,7 @@ void comvscom(){
 
 }
 
+//the player vs player gamemode
 int playervsplayer(){
     startOfPlayervsPlayer:
 
@@ -1375,6 +1405,7 @@ int playervsplayer(){
 return 0;
 }
 
+//messy navigation for the startmenu, redo pls
 void startMenuNavigation(){
     startOfNavigation:
     startMenu();
@@ -1419,7 +1450,7 @@ int main(){
                 }
 
         startOfPP:
-        if (playervsplayer() == 1)
+        if (playervsplayer() == 1) //means that "go to menu" is picked in the pause menu
             goto startOfMain;
         else
             goto startOfPP;
